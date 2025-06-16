@@ -1,20 +1,14 @@
-"""
-Copyright (c) Facebook, Inc. and its affiliates.
-
-This source code is licensed under the MIT license found in the
-LICENSE file in the root directory of this source tree.
-"""
-
 import errno
 import os
 import pickle
 from pathlib import Path
 
 import lmdb
+import torch
 from torch.utils.data import Dataset
+from torch_geometric.data import Data
 
 from ocpmodels.common.registry import registry
-
 
 @registry.register_dataset("single_point_lmdb")
 class SinglePointLmdbDataset(Dataset):
@@ -53,14 +47,45 @@ class SinglePointLmdbDataset(Dataset):
     def __getitem__(self, idx):
         # Return features.
         datapoint_pickled = self.env.begin().get(self._keys[idx])
-        data_object = pickle.loads(datapoint_pickled)
-        data_object = (
-            data_object
-            if self.transform is None
-            else self.transform(data_object)
+        sample = pickle.loads(datapoint_pickled)
+
+        # REBUILD a new Data object using raw tensor fields (avoids version issues)
+        z = sample.atomic_numbers.long()
+        pos = sample.pos
+        cell = sample.cell.squeeze()
+        edge_index = sample.edge_index
+        cell_offsets = sample.cell_offsets
+
+        # Use distances as edge_attr if edge_attr is None
+        edge_attr = getattr(sample, 'edge_attr', None)
+        if edge_attr is None and hasattr(sample, "distances") and sample.distances is not None:
+            edge_attr = sample.distances.unsqueeze(-1)
+        elif edge_attr is None:
+            raise ValueError("No edge_attr or distances found in sample!")
+
+        # Choose energy label (y/y_relaxed) if present
+        if hasattr(sample, "y_relaxed"):
+            y = torch.tensor([sample.y_relaxed], dtype=torch.float32)
+        elif hasattr(sample, "y"):
+            y = torch.tensor([sample.y], dtype=torch.float32)
+        else:
+            y = None
+
+        data = Data(
+            z=z,
+            pos=pos,
+            cell=cell,
+            edge_index=edge_index,
+            edge_attr=edge_attr,
+            cell_offsets=cell_offsets,
+            y=y,
+            natoms=torch.tensor([pos.size(0)], dtype=torch.long),
         )
 
-        return data_object
+        if self.transform is not None:
+            data = self.transform(data)
+
+        return data
 
     def connect_db(self, lmdb_path=None):
         env = lmdb.open(
