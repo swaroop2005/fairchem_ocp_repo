@@ -11,4 +11,4 @@ __all__ = [
 
 from .single_point_lmdb import SinglePointLmdbDataset
 from .trajectory_lmdb import TrajectoryLmdbDataset, data_list_collater
-from .oc20_lmdb_dataset.py import OC20LmdbDataset
+from .oc20_lmdb_dataset import OC20LmdbDataset
