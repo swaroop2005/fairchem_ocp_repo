@@ -12,8 +12,5 @@ lmdb>=1.4.1
 pytest>=7.0.0
 submitit>=1.4.5
 torch>=2.2.0
-torch-scatter>=2.1.2
-torch-sparse>=0.6.18
-torch-cluster>=1.6.3
-torch-spline-conv>=1.2.2
-torch-geometric>=2.5.0
+
+# pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-2.2.0+cpu.html
