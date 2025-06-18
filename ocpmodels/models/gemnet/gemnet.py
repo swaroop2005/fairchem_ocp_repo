@@ -505,7 +505,7 @@ class GemNetT(torch.nn.Module):
     def forward(self, data):
         pos = data.pos
         batch = data.batch
-        atomic_numbers = data.z.long()
+        atomic_numbers = data.atomic_numbers.long()
         
         if self.regress_forces and not self.direct_forces:
             pos.requires_grad_(True)
