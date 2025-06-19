@@ -52,7 +52,7 @@ class SinglePointLmdbDataset(Dataset):
         # REBUILD a new Data object using raw tensor fields (avoids version issues)
         atomic_numbers = sample.atomic_numbers.long()
         pos = sample.pos
-        cell = sample.cell()
+        cell = sample.cell
         edge_index = sample.edge_index
         cell_offsets = sample.cell_offsets
 
