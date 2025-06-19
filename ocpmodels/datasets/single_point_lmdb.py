@@ -72,7 +72,7 @@ class SinglePointLmdbDataset(Dataset):
             y = None
 
         data = Data(
-            z=z,
+            atomic_numbers=z,
             pos=pos,
             cell=cell,
             edge_index=edge_index,
