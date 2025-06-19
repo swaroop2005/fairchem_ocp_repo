@@ -50,7 +50,7 @@ class SinglePointLmdbDataset(Dataset):
         sample = pickle.loads(datapoint_pickled)
 
         # REBUILD a new Data object using raw tensor fields (avoids version issues)
-        z = sample.atomic_numbers.long()
+        atomic_numbers = sample.atomic_numbers.long()
         pos = sample.pos
         cell = sample.cell.squeeze()
         edge_index = sample.edge_index
@@ -72,7 +72,7 @@ class SinglePointLmdbDataset(Dataset):
             y = None
 
         data = Data(
-            atomic_numbers=z,
+            atomic_numbers=atomic_numbers,
             pos=pos,
             cell=cell,
             edge_index=edge_index,
