@@ -65,11 +65,11 @@ class SinglePointLmdbDataset(Dataset):
 
         # Choose energy label (y/y_relaxed) if present
         if hasattr(sample, "y_relaxed"):
-            y = torch.tensor([sample.y_relaxed], dtype=torch.float32)
+            y_relaxed = torch.tensor([sample.y_relaxed], dtype=torch.float32)
         elif hasattr(sample, "y"):
-            y = torch.tensor([sample.y], dtype=torch.float32)
+            y_relaxed = torch.tensor([sample.y], dtype=torch.float32)
         else:
-            y = None
+            y_relaxed = None
 
         data = Data(
             atomic_numbers=atomic_numbers,
@@ -78,7 +78,7 @@ class SinglePointLmdbDataset(Dataset):
             edge_index=edge_index,
             edge_attr=edge_attr,
             cell_offsets=cell_offsets,
-            y=y,
+            y_relaxed=y_relaxed,
             natoms=torch.tensor([pos.size(0)], dtype=torch.long),
         )
 
